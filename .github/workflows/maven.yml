@@ -28,3 +28,16 @@ jobs:
         run: docker build -t ${{secrets.DOCKER_USERNAME}}/bank-rest-api .
       - name: Publish image to docker hub
         run: docker push ${{secrets.DOCKER_USERNAME}}/bank-rest-api:latest
+
+  deploy:
+    needs: build
+    runs-on: [aws-ec2]
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull ${{secrets.DOCKER_USERNAME}}/bank-rest-api:latest
+      - name: Delete old container
+        run : docker rm -f springboot-example-container
+      - name: Run docker container
+        run: docker run -d -p 8080:8080 --name springboot-example-container ${{secrets.DOCKER_USERNAME}}/bank-rest-api
+
+
